@@ -1,0 +1,18 @@
+dc_setup;
+
+select("FDTD::ports");
+set("source port", "Port 1");
+set("source mode", "mode 1");
+set("monitor frequency points", FreqPts);
+
+save("dc.fsp");
+
+addjob(currentfilename);
+desc = '"[`date +%T`] #' + num2str(dev) + ' (' + num2str(number) + '/' + num2str(N) + ') ';
+system('echo ' + desc + 'start..."');
+runjobs;
+load("dc.fsp");
+portResS1 = getresult("FDTD::ports::Port 1", "expansion for port monitor");
+portResS2 = getresult("FDTD::ports::Port 2", "expansion for port monitor");
+lambda = portResS2.lambda;
+S = portResS2.S;

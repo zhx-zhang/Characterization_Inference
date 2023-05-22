@@ -1,0 +1,59 @@
+dc_draw;
+
+# Set the simulation bounds
+simbound_minvx = minvxWAFER/2 - sim_space;
+simbound_maxvx = maxvxWAFER/2 + sim_space;
+simbound_minvy = minvyWAFER - sim_space - 1e-6;
+simbound_maxvy = maxvyWAFER/2 + sim_space + 2.3e-6;
+simbound_minvz = - FDTD_below;
+simbound_maxvz = maxvzWAFER + FDTD_above;
+
+# Add the simulation region
+addfdtd;  # FDTD simulation volume
+set("x min", simbound_minvx); set("x max", simbound_maxvx); 
+set("y min", simbound_minvy); set("y max", simbound_maxvy);
+set("z min", simbound_minvz); set("z max", simbound_maxvz);
+set("mesh accuracy", MESH_ACCURACY);
+set("x min bc", "PML"); set("x max bc", "PML");
+set("y min bc", "PML"); set("y max bc", "PML");
+set("z min bc", "PML"); set("z max bc", "PML");
+#set("PML layers", 8);
+
+# global properties
+setglobalmonitor("frequency points", 3);
+# setglobalmonitor("use linear wavelength spacing", 0);
+setglobalmonitor("use source limits", 1);
+setglobalsource("wavelength start", WavelengthStart);
+setglobalsource("wavelength stop", WavelengthStop);
+
+# add ports
+addport; set("name", "Port 1");
+set("mode selection", "fundamental TE mode");
+set("x", -MAX_LENG - 0.45e-6);
+set("y", -Width_Si/2); set("y span", 3.5e-6);
+set("z", Thickness_Si/2); set("z span", 2.2e-6);
+#updateportmodes;
+
+addport; set("name", "Port 2");
+set("mode selection", "fundamental TE mode");
+set("direction", "backward");
+set("x", MAX_LENG + 0.45e-6);
+set("y", -Width_Si/2); set("y span", 3.5e-6);
+set("z", Thickness_Si/2); set("z span", 2.2e-6);
+#updateportmodes;
+
+# add mesh override
+# addmesh; set("name", "Mesh Override");
+# set("x", 0); set("x span", 0);
+# set("y", 0); set("y span", gap);
+# set("z min", Thickness_Slab); set("z max", Thickness_Si);
+# set("set equivalent index", 1);
+# set("override x mesh", 0); set("override z mesh", 0);
+# set("equivalent y index", 3);
+
+select("FDTD::ports");
+set("source port", "Port 1");
+set("source mode", "mode 1");
+set("monitor frequency points", FreqPts);
+
+save("dc.fsp");

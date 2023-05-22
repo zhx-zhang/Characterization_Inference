@@ -1,0 +1,73 @@
+# Simulation Settings
+MESH_ACCURACY = 8;
+WavelengthStart = 1.54e-6;
+WavelengthStop = 1.61e-6;
+FreqPts = 11;
+DoE0 = [120, 1; 60, 0.6; 60, 1.6; 160, 0.6; 160, 1.6; 100, .8; 100, 1.4; 140, .8; 140, 1.4; 40, 1.2; 120, .6; 120, 1.6; 160, 1.2];
+ratio0 = [1.05, 1, 1; 0.95, 1, 1; 1, 1.05, 1; 1, 0.95, 1; 1, 1, 1.1; 1, 1, 0.9];
+
+N0 = size(DoE0, 1);
+M0 = size(ratio0, 1);
+T0 = matrix(FreqPts, N0, M0);
+
+rerun = false;
+runlist = 5:13;
+
+if (rerun) {
+    matlabload("../data/coupling.mat");
+    N = size(DoE, 1);
+    M = size(ratio, 1);
+    T0(:, 1:N, 1:M) = T;
+    T = T0;
+    N = N0;
+    M = M0;
+} else {
+    N = N0;
+    M = M0;
+    T = T0;
+    runlist = 1:N;
+}
+DoE = DoE0;
+ratio = ratio0;
+
+MAX_R = 160e-6;
+MAX_THETA = acos(1 - 2e-6/MAX_R);
+MAX_LENG = MAX_R*sin(MAX_THETA);
+    
+for (number = runlist)
+{
+    Radius = DoE(number, 1)*1e-6;
+    THETA = acos(1 - 2e-6/Radius);
+    for (dev = 1:M)
+    {
+	Width_Si = 1.3e-6*ratio(dev, 1);
+	Thickness_Si = 200e-9*ratio(dev, 2);
+	Thickness_Slab = 35e-9*ratio(dev, 3);
+	gap = DoE(number, 2)*1e-6 - (Width_Si - 1.3e-6);
+	# Display the progress
+	? 'progress: ' + num2str(dev) + ' / ' + num2str(M) + ' | ' + num2str(number) + ' / ' + num2str(N);
+	dc_run;
+	T(:, number, dev) = S;
+	matlabsave("../data/coupling.mat", T, lambda, DoE, ratio);
+    }
+}
+
+if (~rerun)
+{
+    Tb = matrix(FreqPts, M);
+
+    Radius = 160e-6;
+    THETA = acos(1 - 2e-6/Radius);
+    for (dev = 1:M)
+    {
+       	Width_Si = 1.3e-6*ratio(dev, 1);
+	Thickness_Si = 200e-9*ratio(dev, 2);
+	Thickness_Slab = 35e-9*ratio(dev, 3);
+	gap = DoE(N, 2)*1e-6 - (Width_Si - 1.3e-6);
+	# Display the progress
+	? 'progress: ' + num2str(dev) + ' / ' + num2str(M);
+	wg_ref;
+	Tb(:, dev) = S;
+	matlabsave("../data/coupling_base.mat", Tb, lambda, ratio);
+    }
+}

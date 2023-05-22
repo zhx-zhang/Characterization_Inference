@@ -1,0 +1,51 @@
+# wg_2D_neff_sweep_wavelength.lsf - Calculate the wavelength dependence of waveguide's neff and ng
+radius = 40:20:160;
+N=size(radius,1);
+ratio = [1, 1, 1; 1.05, 1, 1; 0.95, 1, 1; 1, 1.05, 1; 1, 0.95, 1; 1, 1, 1.1; 1, 1, 0.9];
+M = size(ratio, 1);
+
+rerun=0;
+runlist=8:N;
+if(rerun)
+{
+    matlabload('../data/bend.mat');
+} else {
+    runlist=1:N;
+    neff=matrix(11, N, M);
+    ng=matrix(11, N, M);
+}
+
+for(number=runlist)
+{
+    for (dev = 1:M)
+    {
+	thick_Si   = 0.2e-6*ratio(dev, 2);
+	width_ridge = 1.3e-6*ratio(dev, 1);
+	thick_ridge = 35e-9*ratio(dev, 3);
+	R = radius(number);
+	eps_sin = 1 - 0.1024;
+	wg_2D;  # draw waveguide
+	wavelength = 1.61e-6;
+    
+       	run; mesh;
+	setanalysis('wavelength', wavelength);
+	setanalysis('bent waveguide', 1);
+	setanalysis('bend radius', R*1e-6);
+	findmodes; selectmode(1);   # find the fundamental mode
+       	
+	setanalysis("track selected mode",1);
+	setanalysis("number of test modes",3);
+	setanalysis('stop wavelength', 1.54e-6);
+	setanalysis('number of points',11);
+	setanalysis('detailed dispersion calculation', 1);
+	setanalysis('bent waveguide', 1);
+	setanalysis('bend radius', R*1e-6);
+	frequencysweep;    # perform sweep of wavelength and plot
+	lambda = c/getdata("frequencysweep", "f");
+	neff(:, number, dev)=getdata("frequencysweep","neff");
+	ng(:, number, dev) = c/getdata("frequencysweep", "vg");
+	matlabsave('../data/bend.mat',neff,ng,radius,lambda);
+	?num2str(number)+'/'+num2str(N)+' | '+num2str(dev)+'/'+num2str(M);
+    }
+}
+

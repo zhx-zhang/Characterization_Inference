@@ -1,0 +1,97 @@
+rr_start;
+maxvyWAFER = Width_Si/2 + Radius*(1-cos(THETA))*2 + 3e-6;
+maxvxWAFER = MAX_LENG*2 + 0.5e-6;
+minvxWAFER = -maxvxWAFER;
+
+# Add Bends
+addring; set("name", "Center Bend");
+set("inner radius", Radius - Width_Si/2); set("outer radius", Radius + Width_Si/2);
+set("x", 0); set("y", Width_Si/2 + gap + Radius);
+set("z min", 0); set("z max", Thickness_Si);
+set("theta start", -90 - THETA*4/pi*180); set("theta stop", -90 + THETA*4/pi*180);
+set("material", Material_SiN);
+set("alpha", 1);
+
+if(false)
+{
+addring; set("name", "Left Bend");
+set("inner radius", Radius - Width_Si/2); set("outer radius", Radius + Width_Si/2);
+set("x", -Radius*sin(THETA)*2); set("y", Width_Si/2 + gap - (2*cos(THETA)-1)*Radius);
+set("z min", 0); set("z max", Thickness_Si);
+set("theta start", 90 - THETA/pi*180); set("theta stop", 90);
+set("material", Material_SiN);
+set("alpha", 1);
+
+addring; set("name", "Right Bend");
+set("inner radius", Radius - Width_Si/2); set("outer radius", Radius + Width_Si/2);
+set("x", Radius*sin(THETA)*2); set("y", Width_Si/2 + gap - (2*cos(THETA)-1)*Radius);
+set("z min", 0); set("z max", Thickness_Si);
+set("theta start", 90); set("theta stop", 90 + THETA/pi*180);
+set("material", Material_SiN);
+set("alpha", 1);
+}
+
+# Straight Waveguide
+addrect; set("name", "Waveguide");
+set("x min", minvxWAFER - extra_space); set("x max", maxvxWAFER + extra_space);
+set("y", -Width_Si/2); set("y span", Width_Si);
+set("z min", 0);  set("z max", Thickness_Si);
+set("material", Material_SiN);
+set("alpha", 1);
+
+##Particle
+#addcircle; set("name", "Particle");
+#set("x", 0); set("y", -390e-9);
+#set("z min", 0); set("z max", Thickness_Si);
+#set("radius", 20e-9);
+#set("material", Material_Clad);
+#set("override mesh order from material database", 1);
+#set("mesh order", 1);
+
+if(false)
+{
+# Add waveguides to the ends of the DC to make sure that the device simulates properly.
+addrect; set("name", "Extension Left");
+set("x min", minvxWAFER - extra_space); set("x max", -Radius*2*sin(THETA));
+set("y", Width_Si/2 + gap + 2*(1-cos(THETA))*Radius); set("y span", Width_Si);
+set("z min", 0);  set("z max", Thickness_Si);
+set("material", Material_SiN);
+set("alpha", 1);
+
+addrect; set("name", "Extension Right");
+set("x min", Radius*sin(THETA)*2); set("x max", maxvxWAFER + extra_space);
+set("y", Width_Si/2 + gap + 2*(1-cos(THETA))*Radius); set("y span", Width_Si);
+set("z min", 0);  set("z max", Thickness_Si);
+set("material", Material_SiN);
+set("alpha", 1);
+}
+
+if (Thickness_Slab)
+{    # Add Slab
+    addrect; set("name", "Slab");
+    set("x min", minvxWAFER - extra_space); set("x max", maxvxWAFER + extra_space);
+    set("y min", minvyWAFER - extra_space); set("y max", maxvyWAFER + extra_space);
+    set("z min", 0); set("z max", Thickness_Slab);
+    set("material", Material_SiN);
+    set("alpha", 1);
+}
+
+# Add the Buried Oxide
+addrect; set("name", "Oxide");
+set("x min", minvxWAFER - extra_space); set("x max", maxvxWAFER + extra_space);
+set("y min", minvyWAFER - extra_space); set("y max", maxvyWAFER + extra_space);
+set("z min", -2e-6); set("z max", 0);
+set("material", Material_Ox);
+set("alpha", 0.2);
+set("override mesh order from material database", 1);
+set("mesh order", 4); # Make the cladding the background, i.e., "send to back".
+     
+# Add the Cladding
+addrect; set("name", "Cladding");
+set("x min", minvxWAFER - extra_space); set("x max", maxvxWAFER + extra_space); 
+set("y min", minvyWAFER - extra_space); set("y max", maxvyWAFER + extra_space);
+set("z min", 0); set("z max", 2.3e-6);
+set("material", Material_Clad);
+set("alpha", 0.2);
+set("override mesh order from material database", 1);
+set("mesh order", 4); # Make the cladding the background, i.e., "send to back".

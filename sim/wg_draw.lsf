@@ -1,0 +1,91 @@
+# wg_2D_draw.lsf - draw the waveguide geometry in Lumerical MODE
+newmode; newmode; redrawoff;
+
+# define wafer and waveguide structure
+thick_Clad = 2.0e-6; 
+#thick_Si   = 0.22e-6;
+thick_BOX  = 2.0e-6;
+thick_Slab = 0;                  # for strip waveguides
+#thick_Slab = 0.09e-6;          # for rib waveguides
+#width_ridge = 0.5e-6;            # width of the waveguide
+
+# define materials
+Material_Clad = "SiO2 (Glass) - Const";
+Material_Ox = "SiO2 (Glass) - Const";
+
+matname = "SiO2 (Glass) - Const";
+newmaterial = addmaterial("Dielectric");
+setmaterial(newmaterial,"name",matname);
+setmaterial(matname,"Permittivity",1.444^2);
+setmaterial(matname,"color",[0.5, 0.5, 0.5, 1]); # grey
+
+Material_Si = "Si (Silicon) - Dispersive & Lossless";
+#Material_Si = "Si (Silicon) - Palik";
+matname = "Si (Silicon) - Dispersive & Lossless";
+newmaterial = addmaterial("Lorentz");
+setmaterial(newmaterial,"name",matname);
+setmaterial(matname,"Permittivity",7.98737492);
+setmaterial(matname,"Lorentz Linewidth",1e8);
+setmaterial(matname,"Lorentz Resonance",3.93282466e+15);
+setmaterial(matname,"Lorentz Permittivity",3.68799143);
+setmaterial(matname,"color",[0.85, 0, 0, 1]); # red
+
+matname = "Si3N4 (Silicon Nitride) - Dispersive & Lossless";
+newmaterial = addmaterial("Sellmeier");
+setmaterial(newmaterial, "name", matname);
+setmaterial(matname, "A0", eps_sin);
+setmaterial(matname, "B1", 3.0249);
+setmaterial(matname, "C1", 135.3406e-3^2);
+setmaterial(matname, "B2", 40314);
+setmaterial(matname, "C2", 1239842e-3^2);
+setmaterial(matname,"color",[0.8, 0.75, 0.97, 1]); # violet
+
+Material_SiN = "Si3N4 (Silicon Nitride) - Dispersive & Lossless";
+
+# define simulation region
+width_margin  = 2.0e-6;	 # space to include on the side of the waveguide
+height_margin = 1.0e-6;  # space to include above and below the waveguide
+
+# calculate simulation volume
+# propagation in the x-axis direction; z-axis is wafer-normal
+Xmin = -2e-6;  Xmax = 2e-6; # length of the waveguide
+Zmin = -height_margin;  Zmax = thick_Si + height_margin;
+Y_span = 2*width_margin + width_ridge; Ymin = -Y_span/2;  Ymax = -Ymin;
+
+# draw cladding
+addrect; set("name","Clad");  set("material", Material_Clad);
+set("y", 0);              set("y span", Y_span+1e-6);
+set("z min", 0);          set("z max", thick_Clad);
+set("x min", Xmin);       set("x max", Xmax);
+set("override mesh order from material database",1);
+set("mesh order",3);  # similar to "send to back", put the cladding as a background.
+set("alpha", 0.05);
+
+# draw buried oxide
+addrect; set("name", "BOX"); set("material", Material_Ox);
+set("x min", Xmin);       set("x max", Xmax);
+set("z min", -thick_BOX); set("z max", 0);
+set("y", 0);              set("y span", Y_span+1e-6);
+set("alpha", 0.05);
+
+# draw silicon wafer
+addrect; set("name", "Wafer"); set("material", Material_Si);
+set("x min", Xmin);       set("x max", Xmax);
+set("z max", -thick_BOX); set("z min", -thick_BOX-2e-6);
+set("y", 0);              set("y span", Y_span+1e-6);
+set("alpha", 0.1);
+
+# draw waveguide
+addrect; set("name", "waveguide"); set("material",Material_SiN);
+set("y", 0);        set("y span", width_ridge);
+set("z min", 0);    set("z max", thick_Si);
+set("x min", Xmin); set("x max", Xmax);
+
+# ridge
+if (thick_ridge)
+{	# Add Slab
+    addrect; set("name", "Slab"); set("material", Material_SiN);
+    set("x min", Xmin);       set("x max", Xmax);
+    set("y", 0);              set("y span", Y_span+1e-6);
+    set("z min", 0);	set("z max", thick_ridge);
+}

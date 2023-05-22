@@ -1,0 +1,31 @@
+dc_setup;
+
+selectpartial("Bend");
+set("enabled", 0);
+#selectpartial("Extension");
+#set("enabled", 0);
+
+select("FDTD::ports");
+set("source port", "Port 1");
+set("source mode", "mode 1");
+set("monitor frequency points", FreqPts);
+
+save("dc.fsp");
+
+addjob(currentfilename);
+desc = '"[`date +%T`] ref #' + num2str(dev) +  '/' + num2str(M) + ' ';
+system('echo ' + desc + 'start..."');
+runjobs;
+load("dc.fsp");
+portResS1 = getresult("FDTD::ports::Port 1", "expansion for port monitor");
+portResS2 = getresult("FDTD::ports::Port 2", "expansion for port monitor");
+lambda = portResS2.lambda;
+S = portResS2.S;
+if(useAdj)
+{
+    adj_E = getresult("adjoint", "E");
+    adj_index = getresult("index", "index");
+    adj_a = [portResS1.a, portResS2.a];
+    adj_b = [portResS1.b, portResS2.b];
+    adj_N = [portResS1.N, portResS2.N];
+}
