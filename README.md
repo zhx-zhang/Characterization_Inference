@@ -14,7 +14,22 @@ This is the code and data repo for the paper of same name in Optics Express. _(T
 `data/TM_data.mat` is the measurement in TM, with the same format as `data/ring_data.mat`.
 
 ### Simulation results
-_(TODO: explain the data files)_
+`data/bend.mat` contains raw simulation data from the bent waveguise simulation from MODE.
+- `neff`, `ng`: effective index and group index. first dimension corresponds to wavelength, second dimension corresponds to radius, thir dimension corresponds to variations
+- `lambda`: list of wavelengths (m) corresponds to the first dimension of data
+- `radius`: list of radius (um) corresponds to thr second dimension of data
+- variation as the third dimension, in the order: nominal, dw=65nm, dw=-65nm, dT=10nm, dT=-10nm, dh=3.5nm, dh=-3.5nm
+
+`data/coupling.mat` contains raw simulation data for the coupling coefficients
+- `T`: (complex) coupling coefficient. first dimension corresponds to wavelength, second dimension corresponds to radius and gap width, third dimension corresponds to variations
+- `lambda`: same as in `data/bend.mat`
+- `DoE`: list of radius and gap width (um) corresponds to the second dimension of data. radius as the first column, gap wisth as the second.
+- `ratio`: list of variations (as scaling ratio to the nominal value) corresponds to the third dimension of data. columns in order: w/w0, T/T0, h/h0
+
+`data/coupling_base.mat` contains raw simulation data of a reference waveguide for coupling coefficient calculation.
+- `Tb`: (complex) reference through port coefficient. first dimension corresponds to wavelength, second dimension corresponds to variations.
+- `lambda`: same as in `data/bend.mat`
+- ratio`: same as in `data/coupling.mat`
 
 ### Intermediate results
 - `data/intGaussGrid.mat`: from `intGauss.m`
@@ -40,4 +55,4 @@ The running order of the code files and their functions:
 6. `EM_analysis.m`: EM algorithm of the Bayesian inference.
 
 ### Variable names in `EM_analysis.m`
-_(TODO: explanation)_
+For numerical computation purpose, we are using a different system for the variables used in the EM algorithm in `EM_analysis.m`:
