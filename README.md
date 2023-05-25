@@ -1,5 +1,6 @@
 # Inference of Process Variations in Silicon Photonics from Characterization Measurements
 This is the code and data repo for the paper of same name in Optics Express. _(TODO: add reference and link after published)_
+[![DOI](https://zenodo.org/badge/643718831.svg)](https://zenodo.org/badge/latestdoi/643718831)
 
 ## Data folder
 `data/` folder contains original measurement data, simulation results, and some intermediate results from the extraction.
