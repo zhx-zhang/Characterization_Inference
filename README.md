@@ -55,4 +55,23 @@ The running order of the code files and their functions:
 6. `EM_analysis.m`: EM algorithm of the Bayesian inference.
 
 ### Variable names in `EM_analysis.m`
-For numerical computation purpose, we are using a different system for the variables used in the EM algorithm in `EM_analysis.m`:
+For numerical computation purpose, we are using a different system for the variables in the EM algorithm in `EM_analysis.m`:
+
+| Code variables | Notation in paper |
+|---|---|
+| `AA{i}` | $S_i^+A_i$ |
+| `yy{i}` | $\Lambda_i y_i$ |
+| `dd{i}` | $\Lambda_i \Delta_i$ |
+| `IS{i}` | $S_i^+$ |
+| `LL{i}` | $\Lambda_i$ |
+| `m` | $w$ |
+| `IR{i}` | $R_i^{-1}$ |
+| `ISR{i}` | $S_i^+R_i^{-1}$ |
+| `K(:, :, i)` | $S_i^+R_i^{-1}S_i^{+,T}$ |
+| `mu(:, i)` | $S_i^+m_i$ |
+| `V` | $\Lambda$ |
+| `ni(i)` | $\mathrm{E_z}\[\nu_i,\rho_i^{-1}\]$ |
+| `li(i)` | $\rho_i$ |
+| `mi(i)` | $\nu_i$ |
+| `vi(i)` | $\mathrm{var_z}\[\nu_i,\rho_i^{-1}\]$ |
+| `IV` | $\Lambda^{-1}$ |
